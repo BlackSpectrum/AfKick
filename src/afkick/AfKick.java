@@ -66,7 +66,7 @@ public class AfKick extends JavaPlugin
 			AfkInfo afkInfo = this.afkPlayers.get(uid);
 			if (afkInfo.isAfk())
 			{
-				if ((!p.hasPermission("afkick.nokick")) && (afkInfo.isAfk()) && (now >= afkInfo.getKickAfk()))
+				if( afkInfo.isAfk() && now >= afkInfo.getKickAfk() )
 				{
 					p.kickPlayer(this.config.getString("kickMessage", "You got kicked for being AFK."));
 					String msg = this.config.getString("broadcast.kick", "%p got kicked for being AFK.").replaceAll("%p", p.getName());
@@ -74,13 +74,13 @@ public class AfKick extends JavaPlugin
 				}
 				else
 				{
-					if ((!p.hasPermission("afkick.notag")) && (!afkInfo.isInactive()) && (now >= afkInfo.getTagAfkTime() - 30000L))
+					if( !afkInfo.isInactive() && (now >= afkInfo.getTagAfkTime() - 30000L) )
 					{
 						afkInfo.generateCapChar();
 						p.sendMessage("You did not walk for too long and got marked as inactive - please move or answer " + afkInfo.getCapCharQ() + "=? in chat.");
 						afkInfo.setInactive(true);
 					}
-					if ((!p.hasPermission("afkick.notag")) && (!afkInfo.isTagAfk()) && (now >= afkInfo.getTagAfkTime()))
+					if( !afkInfo.isTagAfk() && (now >= afkInfo.getTagAfkTime()) )
 					{
 						String msg = this.config.getString("broadcast.tagAFK", "%p is now AFK.").replaceAll("%p", p.getName());
 						server.broadcastMessage(msg);
@@ -144,10 +144,7 @@ public class AfKick extends JavaPlugin
 	}
 	
 	public void addPlayer(Player p)
-	{
-		if (p.hasPermission("afkick.noafk"))
-			return;
-		
+	{		
 		long now = System.currentTimeMillis();
 		this.afkPlayers.put(p.getUniqueId(), new AfkInfo(now + this.config.getLong("timeUntil.tagAFK", 300L) * 1000L, 
 				now + (this.config.getLong("timeUntil.kick", 540L) - this.config.getLong("timeUntil.tagAFK", 300L) * 1000L), p.getLocation()));

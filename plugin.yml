@@ -5,13 +5,3 @@ commands:
     afk:
       description: sets you as afk.
       usage: /<command>
-permissions:
-    afkick.noafk:
-        description: Prevents you from being tagged or kicked for being afk
-        default: false
-    afkick.nokick:
-        description: Prevents you from being kicked for being afk
-        default: false
-    afkick.notag:
-        description: Prevents you from getting tagged as afk
-        default: false
