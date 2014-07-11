@@ -1,0 +1,8 @@
+name: BSP${project.name}
+main: ${project.groupId}.afkick.AfKick
+version: ${project.version}
+author: Mats391
+commands:
+    afk:
+      description: sets you as afk.
+      usage: /<command>

@@ -1,7 +1,0 @@
-name: BSPAfKick
-main: io.github.mats391.afkick.AfKick
-version: 1.0
-commands:
-    afk:
-      description: sets you as afk.
-      usage: /<command>
