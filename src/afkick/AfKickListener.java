@@ -12,15 +12,15 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class AfKickListener implements Listener
 {
-	private final AfKick plugin;
+	private AfKick plugin;
 	
 	public AfKickListener(AfKick instance)
 	{
@@ -32,11 +32,10 @@ public class AfKickListener implements Listener
 	{
 		Player player = event.getPlayer();
 		
-		if (this.plugin.afkPlayers.containsKey(player))
-		{
-			AfkInfo afkInfo = this.plugin.afkPlayers.get(player);
+		AfkInfo afkInfo = this.plugin.getAfkInfo(player);
+		
+		if(afkInfo != null)
 			afkInfo.setLastLoc(player.getLocation());
-		}
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -44,11 +43,9 @@ public class AfKickListener implements Listener
 	{
 		Player player = event.getPlayer();
 		
-		if(!plugin.afkPlayers.containsKey(player))
-			return;
 
-		AfkInfo afkInfo = this.plugin.afkPlayers.get(player);
-		if (!afkInfo.isAfk())
+		AfkInfo afkInfo = this.plugin.getAfkInfo(player);
+		if (afkInfo == null || !afkInfo.isAfk())
 			return;
 		
 		Block from = event.getFrom().getBlock();
@@ -101,12 +98,18 @@ public class AfKickListener implements Listener
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
+	public void onPlayerJoin(PlayerJoinEvent event)
+	{		
+		Player player = event.getPlayer();
+		this.plugin.addPlayer(player);
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
 		Player player = event.getPlayer();
 		
-		if (this.plugin.afkPlayers.containsKey(player)) 
-			this.plugin.afkPlayers.remove(player);
+		plugin.removePlayer(player);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -114,8 +117,7 @@ public class AfKickListener implements Listener
 	{
 		Player player = event.getPlayer();
 		
-		if (this.plugin.afkPlayers.containsKey(player)) 
-			this.plugin.afkPlayers.remove(player);
+		plugin.removePlayer(player);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -141,11 +143,8 @@ public class AfKickListener implements Listener
 	{
 		Player player = event.getPlayer();
 		
-		if (!this.plugin.afkPlayers.containsKey(player))
-			return;
-		
-		AfkInfo afkInfo = this.plugin.afkPlayers.get(player);
-		if ((afkInfo.isInactive()) && (afkInfo.checkCapChar(event.getMessage())))
+		AfkInfo afkInfo = this.plugin.getAfkInfo(player);
+		if (afkInfo != null && afkInfo.isInactive() && afkInfo.checkCapChar(event.getMessage()) )
 		{
 			event.setCancelled(true);
 			event.setMessage(null);
@@ -169,41 +168,31 @@ public class AfKickListener implements Listener
 		if (event.isCancelled()) 
 			return;
 	
-		if (	(this.plugin.config.getBoolean("denyItemPickup", true)) && 
-				(this.plugin.afkPlayers.containsKey(event.getPlayer())) && 
-				(this.plugin.afkPlayers.get(event.getPlayer()).isTagAfk())	)
+		AfkInfo afkInfo = this.plugin.getAfkInfo(event.getPlayer());
+		if(afkInfo == null)
+			return;
+		
+		if ( this.plugin.config.getBoolean("denyItemPickup", true)  &&  afkInfo.isTagAfk() )	
 			event.setCancelled(true);		
 	}
 	
-	@EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerJoin(PlayerLoginEvent event)
-	{
-		if (event.getResult().compareTo(PlayerLoginEvent.Result.ALLOWED) != 0) 
-			return;
-		
-		long now = System.currentTimeMillis();
-		if (!this.plugin.afkPlayers.containsKey(event.getPlayer()))
-			this.plugin.afkPlayers.put(event.getPlayer(), new AfkInfo(now + this.plugin.config.getLong("timeUntil.softAFK", 300L) * 1000L, 
-																	now + this.plugin.config.getLong("timeUntil.kick", 420L) * 1000L, event.getPlayer().getLocation())	
-																	);
-		
-	}
 	
 	private void checkPlayer(Player player)
 	{
-		if (this.plugin.afkPlayers.containsKey(player))
-		{
-			AfkInfo afkInfo = this.plugin.afkPlayers.get(player);
-			
-			afkInfo.setAfk(false);
+		
+		AfkInfo afkInfo = this.plugin.getAfkInfo(player);
+		if(afkInfo == null)
+			return;
+		
+		afkInfo.setAfk(false);
 
-			if (afkInfo.isTagAfk())
-			{
-				afkInfo.setTagAfk(false);
-				String msg = this.plugin.config.getString("broadcast.nolongerAFK", "%p is no longer AFK.").replaceAll("%p", player.getName());
-				this.plugin.getServer().broadcastMessage(msg);
-			}
+		if (afkInfo.isTagAfk())
+		{
+			afkInfo.setTagAfk(false);
+			String msg = this.plugin.config.getString("broadcast.nolongerAFK", "%p is no longer AFK.").replaceAll("%p", player.getName());
+			this.plugin.getServer().broadcastMessage(msg);
 		}
+		
 	}
 	
 	private boolean pushedByPlayer(Player player, Block from, Block to)
