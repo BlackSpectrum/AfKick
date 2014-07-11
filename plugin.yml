@@ -1,5 +1,5 @@
 name: BSPAfKick
-main: it.github.mats391.afkick.AfKick
+main: io.github.mats391.afkick.AfKick
 version: 1.0
 commands:
     afk:

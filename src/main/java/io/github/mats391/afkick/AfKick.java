@@ -1,4 +1,4 @@
-package it.github.mats391.afkick;
+package io.github.mats391.afkick;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -15,14 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class AfKick extends JavaPlugin
 {
 
-	private final AfKickListener listener = new AfKickListener( this );
+	private final AfKickListener	listener	= new AfKickListener( this );
 
-	private final Server server = Bukkit.getServer();
+	private final Server			server		= Bukkit.getServer();
 
-	public HashMap<UUID, AfkInfo> afkPlayers = new HashMap<UUID, AfkInfo>();
-	public FileConfiguration config;
+	public HashMap<UUID, AfkInfo>	afkPlayers	= new HashMap<UUID, AfkInfo>();
+	public FileConfiguration		config;
 
-	private int taskId = -1;
+	private int						taskId		= -1;
 
 	public void addPlayer( final Player p ) {
 		final long now = System.currentTimeMillis();

@@ -1,4 +1,4 @@
-package it.github.mats391.afkick;
+package io.github.mats391.afkick;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -21,7 +21,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class AfKickListener implements Listener
 {
 
-	private final AfKick plugin;
+	private final AfKick	plugin;
 
 	public AfKickListener(final AfKick instance) {
 		this.plugin = instance;

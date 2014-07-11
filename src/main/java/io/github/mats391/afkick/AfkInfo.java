@@ -1,4 +1,4 @@
-package it.github.mats391.afkick;
+package io.github.mats391.afkick;
 
 import java.util.Random;
 
@@ -7,16 +7,16 @@ import org.bukkit.Location;
 public class AfkInfo
 {
 
-	private long tagAfk;
-	private long kickAfk;
-	private boolean afk;
-	private boolean isTagAfk;
-	private boolean inactive;
-	private Location lastLoc;
-	private String capChar;
-	private String capCharQ;
+	private long			tagAfk;
+	private long			kickAfk;
+	private boolean			afk;
+	private boolean			isTagAfk;
+	private boolean			inactive;
+	private Location		lastLoc;
+	private String			capChar;
+	private String			capCharQ;
 
-	private final Random rand = new Random();
+	private final Random	rand	= new Random();
 
 	public AfkInfo(final long tagAfk, final long kickAfk, final Location lastLoc) {
 		this.tagAfk = tagAfk;
