@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class AfKick extends JavaPlugin
 {
 
+
 	private final AfKickListener	listener	= new AfKickListener( this );
 
 	private final Server			server		= Bukkit.getServer();
@@ -22,7 +23,8 @@ public class AfKick extends JavaPlugin
 	public HashMap<UUID, AfkInfo>	afkPlayers	= new HashMap<UUID, AfkInfo>();
 	public FileConfiguration		config;
 
-	private int						taskId		= -1;
+
+
 
 	public void addPlayer( final Player p ) {
 		final long now = System.currentTimeMillis();
@@ -33,12 +35,22 @@ public class AfKick extends JavaPlugin
 						.getLocation() ) );
 	}
 
+
+
+
 	public void checkAfks() {
 		final long now = System.currentTimeMillis();
-		for ( final UUID uid : this.afkPlayers.keySet() )
+
+		UUID[] keySet = new UUID[0];
+		keySet = (UUID[]) afkPlayers.keySet().toArray( keySet );
+
+		for ( final UUID uid : keySet )
 		{
 
 			final Player p = this.server.getPlayer( uid );
+
+			if ( p == null )
+				continue;
 
 			final AfkInfo afkInfo = this.afkPlayers.get( uid );
 			if ( afkInfo.isAfk() )
@@ -78,9 +90,15 @@ public class AfKick extends JavaPlugin
 		}
 	}
 
+
+
+
 	public AfkInfo getAfkInfo( final Player p ) {
 		return this.afkPlayers.get( p.getUniqueId() );
 	}
+
+
+
 
 	@Override
 	public boolean onCommand( final CommandSender sender, final Command cmd, final String commandLabel, final String[] args ) {
@@ -125,11 +143,16 @@ public class AfKick extends JavaPlugin
 		return false;
 	}
 
+
+
+
 	@Override
 	public void onDisable() {
 		this.afkPlayers.clear();
-		this.server.getScheduler().cancelTask( this.taskId );
 	}
+
+
+
 
 	@Override
 	public void onEnable() {
@@ -144,7 +167,8 @@ public class AfKick extends JavaPlugin
 
 		final PluginManager pm = this.server.getPluginManager();
 		pm.registerEvents( this.listener, this );
-		this.taskId = this.server.getScheduler().scheduleSyncRepeatingTask( this, new Runnable() {
+		this.server.getScheduler().scheduleSyncRepeatingTask( this, new Runnable() {
+
 
 			@Override
 			public void run() {
@@ -154,10 +178,16 @@ public class AfKick extends JavaPlugin
 
 	}
 
+
+
+
 	public void removePlayer( final Player p ) {
 		if ( this.afkPlayers.containsKey( p.getUniqueId() ) )
 			this.afkPlayers.remove( p.getUniqueId() );
 	}
+
+
+
 
 	private void setConfig() {
 		this.config = this.getConfig();
